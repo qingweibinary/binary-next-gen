@@ -6,7 +6,7 @@
         id        = "com.phonegap.helloworld"
         version   = "1.0.0">
 
-    <name>Binary Options Trading</name>
+    <name>Qingwei Test Build</name>
 
     <description>
         Trade Binary Options with Binary.com
@@ -137,4 +137,5 @@
     </platform>
     <platform name="winphone">
     </platform>
+
 </widget>
