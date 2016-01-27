@@ -1,0 +1,92 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var fs = require('fs');
+var celeri = require('celeri');
+var colors = require('colors');
+var Gettext = require('node-gettext');
+
+// Command Registration
+// ----------------------------------------------------------------------------
+
+celeri.option({
+    'command': 'intersect :file1 :file2 :output',
+    'description': 'Intersects and generates a .PO file from the intersection of two other .PO files.'
+}, mergeAction);
+
+// Initialization
+// ----------------------------------------------------------------------------
+
+celeri.parse(process.argv);
+
+// Command Execution Callbacks
+// ----------------------------------------------------------------------------
+
+function mergeAction (data) {
+    if (!fs.existsSync(data.file1)) return error('> File "' + data.file1 + '" not found.');
+    if (!fs.existsSync(data.file2)) return error('> File "' + data.file2 + '" not found.');
+
+    console.info('> Loading files'.green);
+
+    var file1 = fs.readFileSync(data.file1);
+    var file2 = fs.readFileSync(data.file2);
+
+    var gtxt1 = new Gettext();
+    var gtxt2 = new Gettext();
+
+    gtxt1.addTextdomain('en', file1);
+    gtxt2.addTextdomain('en', file2);
+
+    console.info('- Found %d strings in "%s"'.blue, gtxt1.listKeys().length, data.file1);
+    console.info('- Found %d strings in "%s"'.blue, gtxt2.listKeys().length, data.file2);
+
+    console.info('> Running comparison'.green);
+
+    var gtxt2Keys = gtxt2.listKeys();
+    var translatedCount = 0;
+    var notTranslatedCount = 0;
+
+    for (var i = 0; i < gtxt2Keys.length; i += 1) {
+        var msgid = gtxt2Keys[i];
+        var msgstr = gtxt1.gettext(gtxt2Keys[i]);
+
+        if (msgstr == msgid) {
+            notTranslatedCount++;
+            continue;
+        }
+
+        translatedCount++;
+        gtxt2.setTranslation('en', '', msgid, msgstr);
+    }
+
+    console.info('> Comparison finished'.green);
+    console.info('- Found %d translated strings'.blue, translatedCount);
+    console.info('- Found %d not translated strings'.blue, notTranslatedCount);
+
+    console.info('> Generating output'.green);
+
+    var outputBuffer = gtxt2.compilePO();
+
+    if (fs.existsSync(data.output)) {
+        celeri.confirm('File "' + data.output + '" already exists. Do you want to overwrite it?', function (yes) {
+            if (!yes) console.info('> Merge canceled.'.yellow);
+
+            writeOutput(data.output, outputBuffer);
+        });
+    } else {
+        writeOutput(data.output, outputBuffer);
+    }
+}
+
+// Helpers
+// ----------------------------------------------------------------------------
+
+function error (messageString) {
+    console.error(messageString.red);
+    process.exit(1);
+}
+
+function writeOutput (fileName, outputBuffer) {
+    fs.writeFile(fileName, outputBuffer);
+}
