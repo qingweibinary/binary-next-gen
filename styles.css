@@ -204,7 +204,7 @@ input[type=button],
 .btn-secondary {
   border-radius: 3px;
   cursor: pointer;
-  padding: 0.5em 1em; }
+  padding: 0.75em; }
 
 button,
 input[type=submit],
