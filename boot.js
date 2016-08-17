@@ -57,7 +57,7 @@
     readConfig();
     parseUrlAndStoreAccountInfo(window.location.href);
     window.BinaryBoot.parseUrl = parseOAuthResponse;
-    window.BinaryBoot.appId = 1256;
+    window.BinaryBoot.appId = 1008;
     var lang = window.BinaryBoot.language;
 
     var redirectIndex = window.location.href.indexOf('?');
