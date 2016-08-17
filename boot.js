@@ -52,8 +52,7 @@
     }
 
 
-
-    var apiUrl = 'wss://ws.binaryws.com/websockets/v3';
+    var apiUrl = 'wss://www.binaryqa07.com/websockets/v3';
 
     readConfig();
     parseUrlAndStoreAccountInfo(window.location.href);
